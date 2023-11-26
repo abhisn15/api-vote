@@ -8,6 +8,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('register', 'register');
     Route::get('user', 'user');
     Route::put('user/{id}', 'updateUser');
+    Route::delete('destroy/{id}', 'destroy');
     Route::put('updateUser', 'updateUser');
     Route::post('updateVoteStatus', 'updateVoteStatus');
     Route::post('updateVoteStatusTerkiller', 'updateVoteStatusTerkiller');

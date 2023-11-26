@@ -16,7 +16,7 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'updateVoteStatus', 'users', 'user', 'guruTerasik', 'getGuru', 'category', 'postSuara', 'vote', 'getUser', 'updateVoteStatusTerkiller', 'updateVoteStatusTerinspiratif', 'updateUser']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'updateVoteStatus', 'users', 'user', 'guruTerasik', 'getGuru', 'category', 'postSuara', 'vote', 'getUser', 'updateVoteStatusTerkiller', 'updateVoteStatusTerinspiratif', 'updateUser', 'destroy']]);
     }
 
     public function getUser($id)
@@ -51,6 +51,22 @@ class AuthController extends Controller
             'data' => $user,
         ], 200);
         // return response()->json(['message' => 'User information updated successfully']);
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'User deleted successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error("Error deleting user with ID $id: " . $e->getMessage());
+            return response()->json(['error' => 'User not found or unable to delete'], 404);
+        }
     }
 
     public function users()
