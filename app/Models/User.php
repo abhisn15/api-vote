@@ -27,6 +27,8 @@ class User extends Authenticatable implements JWTSubject
         'hasVotedTerinspiratif',
     ];
 
+    protected $table = 'users';
+
     /**
      * The attributes that should be hidden for serialization.
      *

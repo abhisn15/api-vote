@@ -10,12 +10,47 @@ use App\Models\guru;
 use App\Models\Suara;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'updateVoteStatus', 'users', 'user', 'guruTerasik', 'getGuru', 'category', 'postSuara', 'vote']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'updateVoteStatus', 'users', 'user', 'guruTerasik', 'getGuru', 'category', 'postSuara', 'vote', 'getUser', 'updateVoteStatusTerkiller', 'updateVoteStatusTerinspiratif', 'updateUser']]);
+    }
+
+    public function getUser($id)
+    {
+        $user = User::findOrFail($id);
+
+        return response()->json(['user' => $user]);
+    }
+
+    // AuthController.php
+
+    public function updateUser(Request $request, $id)
+    {
+        $request->validate([
+            'username' => 'required|string|max:255|unique:users,username,' . $id,
+            'password' => 'required|string|min:6',
+        ]);
+
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        $user->username = $request->username;
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Akun berhasil Update',
+            'data' => $user,
+        ], 200);
+        // return response()->json(['message' => 'User information updated successfully']);
     }
 
     public function users()
@@ -72,29 +107,93 @@ class AuthController extends Controller
 
     // AuthController.php
 
-    public function updateVoteStatus(Request $request)
-    {
-        $request->validate([
-            'userId' => 'required|integer',
-            'hasVoted' => 'required|boolean',
-            'hasVotedTerkiller' => 'required|boolean',
-            'hasVotedTerinspiratif' => 'required|boolean',
-        ]);
+public function updateVoteStatus(Request $request)
+{
+    $request->validate([
+        'userId' => 'required|integer',
+        'hasVoted' => 'required|integer',
+    ]);
 
-        $user = User::find($request->userId);
+    Log::info('Request received to update vote status.');
 
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
+    $user = User::find($request->userId);
 
-        $user->update([
-            'hasVoted' => $request->hasVoted,
-            'hasVotedTerkiller' => $request->hasVotedTerkiller,
-            'hasVotedTerinspiratif' => $request->hasVotedTerinspiratif,
-        ]);
-
-        return response()->json(['message' => 'Vote status updated successfully']);
+    if (!$user) {
+        Log::error('User not found.');
+        return response()->json(['error' => 'User not found'], 404);
     }
+
+    Log::info('User found. Updating vote status.');
+
+    $user->hasVoted = $request->hasVoted;
+        $user->update();
+
+    Log::info('Vote status updated successfully.');
+        return response()->json([
+            'status' => 200,
+            'message' => 'Akun berhasil Update',
+            'data' => $user,
+        ], 200);
+    // return response()->json(['message' => 'Vote status updated successfully']);
+}
+public function updateVoteStatusTerkiller(Request $request)
+{
+    $request->validate([
+        'userId' => 'required|integer',
+        'hasVotedTerkiller' => 'required|integer',
+    ]);
+
+    Log::info('Request received to update vote status.');
+
+    $user = User::find($request->userId);
+
+    if (!$user) {
+        Log::error('User not found.');
+        return response()->json(['error' => 'User not found'], 404);
+    }
+
+    Log::info('User found. Updating vote status.');
+
+    $user->hasVotedTerkiller = $request->hasVotedTerkiller;
+        $user->update();
+
+    Log::info('Vote status updated successfully.');
+        return response()->json([
+            'status' => 200,
+            'message' => 'Akun berhasil Update',
+            'data' => $user,
+        ], 200);
+    // return response()->json(['message' => 'Vote status updated successfully']);
+}
+public function updateVoteStatusTerinspiratif(Request $request)
+{
+    $request->validate([
+        'userId' => 'required|integer',
+        'hasVotedTerinspiratif' => 'required|integer',
+    ]);
+
+    Log::info('Request received to update vote status.');
+
+    $user = User::find($request->userId);
+
+    if (!$user) {
+        Log::error('User not found.');
+        return response()->json(['error' => 'User not found'], 404);
+    }
+
+    Log::info('User found. Updating vote status.');
+
+    $user->hasVotedTerinspiratif = $request->hasVotedTerinspiratif;
+        $user->update();
+
+    Log::info('Vote status updated successfully.');
+        return response()->json([
+            'status' => 200,
+            'message' => 'Akun berhasil Update',
+            'data' => $user,
+        ], 200);
+    // return response()->json(['message' => 'Vote status updated successfully']);
+}
 
     public function vote(Request $request)
     {
